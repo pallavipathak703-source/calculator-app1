@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultimate Calculator</title>
+
+<style>
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #ffc0cb, #ff9ecb);
+    font-family: Arial;
+}
+
+.calculator {
+    padding: 20px;
+    border-radius: 25px;
+    backdrop-filter: blur(15px);
+    background: rgba(255,255,255,0.2);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+#display {
+    width: 100%;
+    height: 60px;
+    font-size: 26px;
+    text-align: right;
+    margin-bottom: 15px;
+    border-radius: 15px;
+    border: none;
+    padding: 10px;
+    background: rgba(255,255,255,0.8);
+}
+
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(5, 65px);
+    gap: 10px;
+}
+
+button {
+    height: 55px;
+    border: none;
+    border-radius: 15px;
+    font-size: 16px;
+    cursor: pointer;
+    background: #ff1493;
+    color: white;
+}
+
+.num, .light {
+    background: #ffb6c1;
+    color: black;
+}
+
+.equal { background: #28a745; }
+.clear { background: #dc3545; }
+
+button:hover { transform: scale(1.05); }
+button:active { transform: scale(0.9); }
+
+#history {
+    margin-top: 10px;
+    max-height: 120px;
+    overflow-y: auto;
+    background: rgba(255,255,255,0.6);
+    padding: 10px;
+    border-radius: 15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="calculator">
+
+<input type="text" id="display" placeholder="0">
+
+<div class="buttons">
+
+<button class="clear light" onclick="clearDisplay()">AC</button>
+<button class="light" onclick="append('(')">(</button>
+<button class="light" onclick="append(')')">)</button>
+<button class="light" onclick="append('/')">/</button>
+<button class="light" onclick="append('*')">*</button>
+
+<button class="num" onclick="append('7')">7</button>
+<button class="num" onclick="append('8')">8</button>
+<button class="num" onclick="append('9')">9</button>
+<button class="light" onclick="append('-')">-</button>
+<button class="light" onclick="append('+')">+</button>
+
+<button class="num" onclick="append('4')">4</button>
+<button class="num" onclick="append('5')">5</button>
+<button class="num" onclick="append('6')">6</button>
+<button class="light" onclick="append('.')">.</button>
+<button class="light" onclick="append('%')">%</button>
+
+<button class="num" onclick="append('1')">1</button>
+<button class="num" onclick="append('2')">2</button>
+<button class="num" onclick="append('3')">3</button>
+<button class="num" onclick="append('0')">0</button>
+<button class="equal" onclick="calculate()">=</button>
+
+<!-- Scientific -->
+<button onclick="append('sin(')">sin</button>
+<button onclick="append('cos(')">cos</button>
+<button onclick="append('tan(')">tan</button>
+<button onclick="append('sqrt(')">√</button>
+<button onclick="append('log(')">log</button>
+
+<!-- Extra -->
+<button onclick="append('3.1416')">π</button>
+<button onclick="square()">x²</button>
+<button onclick="inverse()">1/x</button>
+
+<!-- NEW -->
+<button onclick="append('^')">^</button>
+<button onclick="append('!')">!</button>
+
+</div>
+
+<div id="history"></div>
+
+</div>
+
+<script>
+let display = document.getElementById("display");
+let historyDiv = document.getElementById("history");
+
+// Basic
+function append(val) {
+    display.value += val;
+}
+
+function clearDisplay() {
+    display.value = "";
+}
+
+// Factorial
+function factorial(n) {
+    if (n < 0) return "Error";
+    if (n === 0) return 1;
+    let res = 1;
+    for (let i = 1; i <= n; i++) res *= i;
+    return res;
+}
+
+// Extra
+function square() {
+    try {
+        let res = eval(display.value) ** 2;
+        addHistory(display.value + "² = " + res);
+        display.value = res;
+    } catch {
+        display.value = "Error";
+    }
+}
+
+function inverse() {
+    try {
+        let res = 1 / eval(display.value);
+        addHistory("1/" + display.value + " = " + res);
+        display.value = res;
+    } catch {
+        display.value = "Error";
+    }
+}
+
+// History
+function addHistory(entry) {
+    historyDiv.innerHTML += entry + "<br>";
+}
+
+// Calculate
+function calculate() {
+    try {
+        let exp = display.value;
+        let original = exp;
+
+        // Power
+        exp = exp.replace(/(\d+)\^(\d+)/g, (_, a, b) => Math.pow(a, b));
+
+        // Factorial
+        exp = exp.replace(/(\d+)!/g, (_, n) => factorial(parseInt(n)));
+
+        // Scientific
+        exp = exp.replace(/sin\(([^)]+)\)/g, (_, v) => Math.sin(eval(v) * Math.PI/180));
+        exp = exp.replace(/cos\(([^)]+)\)/g, (_, v) => Math.cos(eval(v) * Math.PI/180));
+        exp = exp.replace(/tan\(([^)]+)\)/g, (_, v) => Math.tan(eval(v) * Math.PI/180));
+        exp = exp.replace(/sqrt\(([^)]+)\)/g, (_, v) => Math.sqrt(eval(v)));
+        exp = exp.replace(/log\(([^)]+)\)/g, (_, v) => Math.log10(eval(v)));
+
+        let result = eval(exp);
+
+        addHistory(original + " = " + result);
+        display.value = result;
+
+    } catch {
+        display.value = "Error";
+    }
+}
+</script>
+
+</body>
+</html>
